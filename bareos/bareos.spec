@@ -69,18 +69,18 @@ BuildRequires: libtirpc-devel
 %define systemd_support 1
 %endif
 
-%if 0%{?rhel} >= 700 || 0%{?centos} >= 700
+%if 0%{?rhel} >= 7
 %define glusterfs 1
 %define droplet 1
 %define systemd_support 1
 %endif
 
-%if 0%{?rhel} >= 700
+%if 0%{?rhel} >= 7
 %define ceph 1
 %endif
 
 # use Developer Toolset 7 compiler as standard is too old
-%if 0%{?centos} == 600 || 0%{?rhel} == 600
+%if 0%{?rhel} == 6
 BuildRequires: devtoolset-7-gcc
 BuildRequires: devtoolset-7-gcc-c++
 %endif
@@ -110,7 +110,7 @@ Source0: %{name}-Release-%{version}.tar.gz
 
 BuildRequires: pam-devel
 
-%if 0%{?centos} ||  0%{?rhel}
+%if 0%{?rhel}
 BuildRequires: cmake
 BuildRequires: cmake3
 %else
@@ -147,7 +147,7 @@ BuildRequires: libcap-devel
 BuildRequires: mtx
 
 %if 0%{?build_qt_monitor}
-%if 0%{?centos} == 600 || 0%{?rhel} <= 700
+%if 0%{?rhel} <= 7
 BuildRequires: libqt4-devel
 %else
 BuildRequires: qt5-qtbase-devel
@@ -169,11 +169,7 @@ BuildRequires: tcp_wrappers
 BuildRequires: redhat-lsb
 
 # older versions require additional release packages
-%if 0%{?rhel} && 0%{?rhel} <= 600
-BuildRequires: redhat-release
-%endif
-
-%if 0%{?centos} && 0%{?centos} <= 600
+%if 0%{?rhel} && 0%{?rhel} <= 6
 BuildRequires: redhat-release
 %endif
 
@@ -356,12 +352,12 @@ Requires:   libcap-devel
 Requires:   sqlite-devel
 %endif
 Requires:   openssl-devel
-%if 0%{?rhel} >= 600 || 0%{?centos} >= 600 || 0%{?fedora}
+%if 0%{?rhel} >= 6 || 0%{?fedora}
 %if %{use_libwrap}
 Requires:   tcp_wrappers-devel
 %endif
 %else
-%if 0%{?rhel} || 0%{?centos}
+%if 0%{?rhel}
 %if %{use_libwrap}
 Requires:   tcp_wrappers
 %endif
@@ -369,10 +365,10 @@ Requires:   tcp_wrappers
 Requires:   tcpd-devel
 %endif
 %endif
-%if 0%{?rhel} >= 700 || 0%{?centos} >= 700 || 0%{?fedora} >= 19
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 19
 Requires:   mariadb-devel
 %else
-%if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
+%if 0%{?rhel} || 0%{?fedora}
 Requires:   mysql-devel
 %else
 Requires:   libmysqlclient-devel
@@ -592,7 +588,7 @@ mkdir %{CMAKE_BUILDDIR}
 pushd %{CMAKE_BUILDDIR}
 
 # use Developer Toolset 7 compiler as standard is too old
-%if 0%{?centos} == 600 || 0%{?rhel} == 600
+%if 0%{?rhel} == 6
 export PATH=/opt/rh/devtoolset-7/root/usr/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 %endif
 
@@ -600,7 +596,7 @@ CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS ;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS ;
 
 # use our own cmake call instead of cmake macro as it is different on different platforms/versions
-%if 0%{?centos} < 800 || 0%{?rhel} < 800
+%if 0%{?rhel} < 8
 cmake3 .. \
 %else
 cmake  .. \
