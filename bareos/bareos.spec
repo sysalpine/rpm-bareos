@@ -1211,8 +1211,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %define create_group() (getent group %1 > /dev/null || groupadd -r %1; %nil);
 %define create_user() ( getent passwd %1 > /dev/null || useradd -r -c "%1" -d %{working_dir} -g %{daemon_group} -s /bin/false %1; %nil);
 %else
-# non RHEL4
-%else
 
 %define insserv_cleanup() \
 /bin/true \
@@ -1272,8 +1270,6 @@ getent group %1 > /dev/null || groupadd -r %1 \
 %define create_user() \
 getent passwd %1 > /dev/null || useradd -r --comment "%1" --home %{working_dir} -g %{daemon_group} --shell /bin/false %1 \
 %nil
-
-%endif
 
 # With the introduction of config subdirectories (bareos-16.2)
 # some config files have been renamed (or even splitted into multiple files).
