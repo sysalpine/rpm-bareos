@@ -75,10 +75,6 @@ BuildRequires: libtirpc-devel
 %define systemd_support 1
 %endif
 
-%if 0%{?rhel} >= 7
-%define ceph 1
-%endif
-
 # use Developer Toolset 7 compiler as standard is too old
 %if 0%{?rhel} == 6
 BuildRequires: devtoolset-7-gcc
