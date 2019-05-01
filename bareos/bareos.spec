@@ -62,25 +62,6 @@ BuildRequires: rpcgen
 BuildRequires: libtirpc-devel
 %endif
 
-#
-# RedHat (CentOS, Fedora, RHEL) specific settings
-#
-%if 0%{?rhel} > 0 && 0%{?rhel} < 500
-%define RHEL4 1
-%define client_only 1
-%define build_qt_monitor 0
-%define build_sqlite3 0
-%define have_git 0
-%define python_plugins 0
-%endif
-
-# centos/rhel 5: segfault when building qt monitor
-%if 0%{?centos} == 505 || 0%{?rhel} == 505
-%define build_qt_monitor 0
-%define have_git 0
-%define python_plugins 0
-%endif
-
 %if 0%{?fedora} >= 20
 %if 0%{?fedora} < 30
 %define glusterfs 1
@@ -188,7 +169,7 @@ BuildRequires: tcp_wrappers
 BuildRequires: redhat-lsb
 
 # older versions require additional release packages
-%if 0%{?rhel}   && 0%{?rhel} <= 600
+%if 0%{?rhel} && 0%{?rhel} <= 600
 BuildRequires: redhat-release
 %endif
 
@@ -211,9 +192,6 @@ Requires:   %{name}-director = %{version}
 Requires:   %{name}-storage = %{version}
 Requires:   %{name}-client = %{version}
 
-%if 0%{?RHEL4}
-%define dscr Bareos - Backup Archiving Recovery Open Sourced.
-%else
 %define dscr Bareos - Backup Archiving Recovery Open Sourced. \
 Bareos is a set of computer programs that permit you (or the system \
 administrator) to manage backup, recovery, and verification of computer \
@@ -222,7 +200,6 @@ it is a network client/server based backup program. Bareos is relatively \
 easy to use and efficient, while offering many advanced storage management \
 features that make it easy to find and recover lost or damaged files. \
 Bareos source code has been released under the AGPL version 3 license.
-%endif
 
 %description
 %{dscr}
@@ -1204,15 +1181,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 #
 # Define some macros for updating the system settings.
 #
-%if 0%{?RHEL4}
-%define add_service_start() ( /sbin/chkconfig --add %1; %nil)
-%define stop_on_removal() ( /sbin/service %1 stop >/dev/null 2>&1 ||  /sbin/chkconfig --del %1 || true; %nil)
-%define restart_on_update() (/sbin/service %1 condrestart >/dev/null 2>&1 || true; %nil)
-%define insserv_cleanup() (/bin/true; %nil)
-%define create_group() (getent group %1 > /dev/null || groupadd -r %1; %nil);
-%define create_user() ( getent passwd %1 > /dev/null || useradd -r -c "%1" -d %{working_dir} -g %{daemon_group} -s /bin/false %1; %nil);
-%else
-
 %define insserv_cleanup() \
 /bin/true \
 %nil
@@ -1258,8 +1226,6 @@ if test "$FIRST_ARG" -ge 1 ; then \
   /sbin/service %1 condrestart >/dev/null 2>&1 || true \
 fi \
 %nil
-
-%endif
 
 %endif
 
@@ -1470,4 +1436,3 @@ exit 0
 %insserv_cleanup
 
 %changelog
-
