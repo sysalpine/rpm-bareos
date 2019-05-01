@@ -39,7 +39,7 @@ Vendor: 	The Bareos Team
 %define client_only 0
 %define build_qt_monitor 0
 %define build_sqlite3 1
- 0
+%define glusterfs 0
 %define droplet 0
 %define have_git 1
 %define ceph 0
