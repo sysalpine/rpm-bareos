@@ -39,7 +39,7 @@ Vendor: 	The Bareos Team
 %define client_only 0
 %define build_qt_monitor 0
 %define build_sqlite3 1
-%define glusterfs 0
+ 0
 %define droplet 0
 %define have_git 1
 %define ceph 0
@@ -82,7 +82,9 @@ BuildRequires: libtirpc-devel
 %endif
 
 %if 0%{?fedora} >= 20
+%if 0%{?fedora} < 30
 %define glusterfs 1
+%endif
 %define systemd_support 1
 %endif
 
@@ -829,7 +831,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %if !0%{?systemd_support}
 %{_sysconfdir}/init.d/bareos-dir
 %endif
-%{_sbindir}/rcbareos-dir
 %if !0%{?systemd_support}
 %{_sysconfdir}/rc.d/init.d/bareos-dir
 %endif
