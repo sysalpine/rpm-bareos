@@ -43,7 +43,6 @@ Vendor: 	The Bareos Team
 %define droplet 0
 %define have_git 1
 %define ceph 0
-%define install_suse_fw 0
 %define systemd_support 0
 %define python_plugins 1
 
@@ -61,36 +60,6 @@ Vendor: 	The Bareos Team
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 BuildRequires: rpcgen
 BuildRequires: libtirpc-devel
-%endif
-
-#
-# SUSE (openSUSE, SLES) specific settigs
-#
-%if 0%{?sles_version} == 10
-%define build_qt_monitor 0
-%define build_sqlite3 0
-%define have_git 0
-%define python_plugins 0
-%endif
-
-%if 0%{?suse_version} > 1010
-%define install_suse_fw 1
-%define _fwdefdir   %{_sysconfdir}/sysconfig/SuSEfirewall2.d/services
-%endif
-
-
-%if 0%{?suse_version} > 1140
-%define systemd_support 1
-%endif
-
-# SLE 12
-# SLE_15: droplet is not available due to SSL build problems
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
-%define droplet 1
-%endif
-
-%if 0%{?sle_version} >= 120000
-%define ceph 1
 %endif
 
 #
@@ -135,10 +104,6 @@ BuildRequires: devtoolset-7-gcc-c++
 
 %if 0%{?systemd_support}
 BuildRequires: systemd
-# see https://en.opensuse.org/openSUSE:Systemd_packaging_guidelines
-%if 0%{?suse_version} >= 1210
-BuildRequires: systemd-rpm-macros
-%endif
 %{?systemd_requires}
 %endif
 
@@ -151,12 +116,7 @@ BuildRequires: glusterfs-devel glusterfs-api-devel
 %endif
 
 %if 0%{?ceph}
-%if 0%{?sle_version} >= 120200
-BuildRequires: libcephfs-devel
-BuildRequires: librados-devel
-%else
 BuildRequires: ceph-devel
-%endif
 %endif
 
 %if 0%{?have_git}
@@ -195,11 +155,7 @@ BuildRequires: libfastlz-devel
 %endif
 BuildRequires: logrotate
 %if 0%{?build_sqlite3}
-%if 0%{?suse_version}
-BuildRequires: sqlite3-devel
-%else
 BuildRequires: sqlite-devel
-%endif
 %endif
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
@@ -208,16 +164,10 @@ BuildRequires: libcap-devel
 BuildRequires: mtx
 
 %if 0%{?build_qt_monitor}
-%if 0%{?suse_version}
-BuildRequires: libqt5-qtbase-devel
-%else
-
 %if 0%{?centos_version} == 600 || 0%{?rhel_version} <= 700
 BuildRequires: libqt4-devel
 %else
 BuildRequires: qt5-qtbase-devel
-%endif
-
 %endif
 %endif
 
@@ -226,38 +176,12 @@ BuildRequires: qt5-qtbase-devel
 BuildRequires: python-devel >= 2.6
 %endif
 
-%if 0%{?suse_version}
-
-# suse_version:
-#   1315: SLE_12
-#   1110: SLE_11
-#   1010: SLE_10
-
-BuildRequires: distribution-release
-BuildRequires: pwdutils
-BuildRequires: tcpd-devel
-BuildRequires: termcap
-BuildRequires: update-desktop-files
-
-%if 0%{?suse_version} > 1010
-# link identical files
-BuildRequires: fdupes
-BuildRequires: libjansson-devel
-BuildRequires: lsb-release
-%endif
-
-%else
-# non suse
-
 BuildRequires: libtermcap-devel
 BuildRequires: passwd
 
 %if %{use_libwrap}
 BuildRequires: tcp_wrappers
 %endif
-
-# Some magic to be able to determine what platform we are running on.
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora_version}
 
 BuildRequires: redhat-lsb
 
@@ -281,13 +205,6 @@ BuildRequires: tcp_wrappers-devel
 %endif
 %endif
 %else
-# non suse, non redhat: eg. mandriva.
-
-BuildRequires: lsb-release
-
-%endif
-
-%endif
 
 
 Summary:    Backup Archiving REcovery Open Sourced - metapackage
@@ -324,9 +241,6 @@ Summary:    Bareos client Meta-All-In-One package
 Group:      Productivity/Archiving/Backup
 Requires:   %{name}-bconsole = %{version}
 Requires:   %{name}-filedaemon = %{version}
-%if 0%{?suse_version}
-Recommends: %{name}-traymonitor = %{version}
-%endif
 
 %package    director
 Summary:    Bareos Director daemon
@@ -334,14 +248,7 @@ Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Requires:   %{name}-database-common = %{version}
 Requires:   %{name}-database-tools
-%if 0%{?suse_version}
-Requires(pre): pwdutils
-# Don't use this option on anything other then SUSE derived distributions
-# as Fedora & others don't know this tag
-Recommends: logrotate
-%else
 Requires(pre): shadow-utils
-%endif
 Provides:   %{name}-dir
 
 %package    storage
@@ -349,14 +256,9 @@ Summary:    Bareos Storage daemon
 Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Provides:   %{name}-sd
-%if 0%{?suse_version}
-Requires(pre): pwdutils
-Recommends: bareos-tools
-%else
 Requires(pre): shadow-utils
 # Recommends would be enough, however only supported by Fedora >= 24.
 Requires: bareos-tools
-%endif
 
 %if 0%{?droplet}
 %package    storage-droplet
@@ -389,9 +291,6 @@ Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common  = %{version}
 Requires:   %{name}-storage = %{version}
 Requires:   mtx
-%if !0%{?suse_version}
-Requires:   mt-st
-%endif
 
 %package    storage-fifo
 Summary:    FIFO support for the Bareos Storage backend
@@ -404,21 +303,13 @@ Summary:    Bareos File daemon (backup and restore client)
 Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Provides:   %{name}-fd
-%if 0%{?suse_version}
-Requires(pre): pwdutils
-%else
 Requires(pre): shadow-utils
-%endif
 
 %package    common
 Summary:    Common files, required by multiple Bareos packages
 Group:      Productivity/Archiving/Backup
 Requires:   openssl
-%if 0%{?suse_version}
-Requires(pre): pwdutils
-%else
 Requires(pre): shadow-utils
-%endif
 Provides:   %{name}-libs
 
 %package    database-common
@@ -447,9 +338,6 @@ Provides:   %{name}-database-backend
 %package    database-sqlite3
 Summary:    Libs & tools for sqlite3 catalog
 Group:      Productivity/Archiving/Backup
-%if 0%{?suse_version}
-Requires:   sqlite3
-%endif
 %if 0%{?fedora_version}
 Requires:   sqlite
 %endif
@@ -489,17 +377,9 @@ Requires:   libacl-devel
 Requires:   postgresql-devel
 Requires:   libcap-devel
 %if 0%{?build_sqlite3}
-%if 0%{?suse_version}
-Requires:   sqlite3-devel
-%else
 Requires:   sqlite-devel
 %endif
-%endif
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora_version}
 Requires:   openssl-devel
-%else
-Requires:   libopenssl-devel
-%endif
 %if 0%{?rhel_version} >= 600 || 0%{?centos_version} >= 600 || 0%{?fedora_version}
 %if %{use_libwrap}
 Requires:   tcp_wrappers-devel
@@ -729,9 +609,6 @@ This package contains required files for Bareos regression testing.
 if [ "%{?buildroot}" -a "%{?buildroot}" != "/" ]; then
     rm -rf "%{?buildroot}"
 fi
-%if !0%{?suse_version}
-export PATH=$PATH:/usr/lib64/qt5/bin:/usr/lib/qt5/bin
-%endif
 export MTX=/usr/sbin/mtx
 
 
@@ -840,12 +717,6 @@ cmake  .. \
 #make check
 
 %install
-##if 0#{?suse_version}
-#    #makeinstall DESTDIR=#{buildroot} install
-##else
-#    make DESTDIR=#{buildroot} install
-##endif
-#make DESTDIR=#{buildroot} install-autostart
 
 pushd %{CMAKE_BUILDDIR}
 make  DESTDIR=%{buildroot} install
@@ -885,11 +756,6 @@ for F in  \
     %{script_dir}/mtx-changer \
     %{_sysconfdir}/%{name}/mtx-changer.conf \
 %endif
-%if 0%{?install_suse_fw} == 0
-    %{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-dir \
-    %{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-sd \
-    %{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-fd \
-%endif
 %if 0%{?systemd_support}
     %{_sysconfdir}/rc.d/init.d/bareos-dir \
     %{_sysconfdir}/rc.d/init.d/bareos-sd \
@@ -922,16 +788,6 @@ rm -f %{buildroot}/%{_sysconfdir}/%{name}/bareos-dir.d/plugin-python-ldap.conf
 rm -f %{buildroot}/%{script_dir}/bareos-glusterfind-wrapper
 %endif
 
-# install tray monitor
-# #if 0#{?build_qt_monitor}
-# #if 0#{?suse_version} > 1010
-# disables, because suse_update_desktop_file complains
-# that there are two desktop file (applications and autostart)
-# ##suse_update_desktop_file bareos-tray-monitor System Backup
-# #endif
-# #endif
-
-
 # remove man page if qt tray monitor is not built
 %if !0%{?build_qt_monitor}
 rm %{buildroot}%{_mandir}/man1/bareos-tray-monitor.*
@@ -943,11 +799,6 @@ install -d -m 755 %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-dir.service %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-fd.service %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-sd.service %{buildroot}%{_unitdir}
-%if 0%{?suse_version}
-ln -sf service %{buildroot}%{_sbindir}/rcbareos-dir
-ln -sf service %{buildroot}%{_sbindir}/rcbareos-fd
-ln -sf service %{buildroot}%{_sbindir}/rcbareos-sd
-%endif
 %endif
 
 # Create the Readme files for the meta packages
@@ -978,19 +829,12 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %files director
 # dir package (bareos-dir)
 %defattr(-, root, root)
-%if 0%{?suse_version}
 %if !0%{?systemd_support}
 %{_sysconfdir}/init.d/bareos-dir
 %endif
 %{_sbindir}/rcbareos-dir
-%if 0%{?install_suse_fw}
-# use noreplace if user has adjusted its list of IP
-%attr(0644, root, root) %config(noreplace) %{_fwdefdir}/bareos-dir
-%endif
-%else
 %if !0%{?systemd_support}
 %{_sysconfdir}/rc.d/init.d/bareos-dir
-%endif
 %endif
 %attr(0640, %{director_daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/bareos-dir.d/catalog/MyCatalog.conf
 %attr(0640, %{director_daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/bareos-dir.d/client/bareos-fd.conf
@@ -1056,20 +900,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %if 0%{?build_qt_monitor}
 %attr(0755, %{daemon_user}, %{daemon_group}) %dir %{_sysconfdir}/%{name}/tray-monitor.d/storage
 %attr(0644, %{daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/tray-monitor.d/storage/StorageDaemon-local.conf
-%endif
-%if 0%{?suse_version}
-%if !0%{?systemd_support}
-%{_sysconfdir}/init.d/bareos-sd
-%endif
-%{_sbindir}/rcbareos-sd
-%if 0%{?install_suse_fw}
-# use noreplace if user has adjusted its list of IP
-%attr(0644, root, root) %config(noreplace) %{_fwdefdir}/bareos-sd
-%endif
-%else
-%if !0%{?systemd_support}
-%{_sysconfdir}/rc.d/init.d/bareos-sd
-%endif
 %endif
 %{_sbindir}/bareos-sd
 %{script_dir}/disk-changer
@@ -1147,20 +977,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %if 0%{?build_qt_monitor}
 %attr(0755, %{daemon_user}, %{daemon_group}) %dir %{_sysconfdir}/%{name}/tray-monitor.d/client
 %attr(0644, %{daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/tray-monitor.d/client/FileDaemon-local.conf
-%endif
-%if 0%{?suse_version}
-%if !0%{?systemd_support}
-%{_sysconfdir}/init.d/bareos-fd
-%endif
-%{_sbindir}/rcbareos-fd
-%if 0%{?install_suse_fw}
-# use noreplace if user has adjusted its list of IP
-%attr(0644, root, root) %config(noreplace) %{_fwdefdir}/bareos-fd
-%endif
-%else
-%if !0%{?systemd_support}
-%{_sysconfdir}/rc.d/init.d/bareos-fd
-%endif
 %endif
 %{_sbindir}/bareos-fd
 %{plugin_dir}/bpipe-fd.so
@@ -1399,29 +1215,13 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %define create_user() ( getent passwd %1 > /dev/null || useradd -r -c "%1" -d %{working_dir} -g %{daemon_group} -s /bin/false %1; %nil);
 %else
 # non RHEL4
-%if 0%{?suse_version}
-
-%if 0%{?systemd_support}
-%define insserv_cleanup() (/bin/true; %nil)
 %else
-%if 0%{!?add_service_start:1}
-%define add_service_start() \
-SERVICE=%1 \
-#service_add $1 \
-%fillup_and_insserv $SERVICE \
-%nil
-%endif
-%endif
-
-%else
-# non suse, systemd
 
 %define insserv_cleanup() \
 /bin/true \
 %nil
 
 %if 0%{?systemd_support}
-# non suse, systemd
 
 %define add_service_start() \
 /bin/systemctl daemon-reload >/dev/null 2>&1 || true \
@@ -1443,7 +1243,6 @@ fi \
 %nil
 
 %else
-# non suse, init.d
 
 %define add_service_start() \
 /sbin/chkconfig --add %1 \
@@ -1514,12 +1313,7 @@ fi; \
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
 %{script_dir}/bareos-config initialize_database_driver
-%if 0%{?suse_version} >= 1210
-%service_add_post bareos-dir.service
-/bin/systemctl enable bareos-dir.service >/dev/null 2>&1 || true
-%else
 %add_service_start bareos-dir
-%endif
 
 %posttrans director
 %posttrans_restore_file /etc/%{name}/bareos-dir.conf
@@ -1531,12 +1325,7 @@ fi; \
 %{script_dir}/bareos-config setup_sd_user
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
-%if 0%{?suse_version} >= 1210
-%service_add_post bareos-sd.service
-/bin/systemctl enable bareos-sd.service >/dev/null 2>&1 || true
-%else
 %add_service_start bareos-sd
-%endif
 
 %posttrans storage
 %posttrans_restore_file /etc/%{name}/bareos-sd.conf
@@ -1569,12 +1358,7 @@ fi; \
 %post_backup_file /etc/%{name}/bareos-fd.conf
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
-%if 0%{?suse_version} >= 1210
-%service_add_post bareos-fd.service
-/bin/systemctl enable bareos-fd.service >/dev/null 2>&1 || true
-%else
 %add_service_start bareos-fd
-%endif
 
 %posttrans filedaemon
 %posttrans_restore_file /etc/%{name}/bareos-fd.conf
@@ -1671,25 +1455,13 @@ exit 0
 exit 0
 
 %preun director
-%if 0%{?suse_version} >= 1210
-%service_del_preun bareos-dir.service
-%else
 %stop_on_removal bareos-dir
-%endif
 
 %preun storage
-%if 0%{?suse_version} >= 1210
-%service_del_preun bareos-sd.service
-%else
 %stop_on_removal bareos-sd
-%endif
 
 %preun filedaemon
-%if 0%{?suse_version} >= 1210
-%service_del_preun bareos-fd.service
-%else
 %stop_on_removal bareos-fd
-%endif
 
 %postun director
 # to prevent aborting jobs, no restart on update
@@ -1700,11 +1472,7 @@ exit 0
 %insserv_cleanup
 
 %postun filedaemon
-%if 0%{?suse_version} >= 1210
-%service_del_postun bareos-fd.service
-%else
 %restart_on_update bareos-fd
-%endif
 %insserv_cleanup
 
 %changelog
