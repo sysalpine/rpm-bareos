@@ -198,13 +198,10 @@ BuildRequires: redhat-release
 BuildRequires: fedora-release
 %endif
 
-%if 0%{?rhel_version} >= 600 || 0%{?centos_version} >= 600 || 0%{?fedora_version} >= 14
 BuildRequires: jansson-devel
 %if %{use_libwrap}
 BuildRequires: tcp_wrappers-devel
 %endif
-%endif
-%else
 
 
 Summary:    Backup Archiving REcovery Open Sourced - metapackage
