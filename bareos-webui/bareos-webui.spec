@@ -2,7 +2,7 @@
 Name:          bareos-webui
 #Provides:
 Version:       18.2.6
-Release:       1
+Release:       1%{?dist}
 Summary:       Bareos Web User Interface
 
 Group:         Productivity/Archiving/Backup

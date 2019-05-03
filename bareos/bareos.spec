@@ -6,7 +6,7 @@
 
 Name: 		bareos
 Version: 	18.2.6
-Release: 	1
+Release: 	1%{?dist}
 Group: 		Productivity/Archiving/Backup
 License: 	AGPL-3.0
 BuildRoot: 	%{_tmppath}/%{name}-root
