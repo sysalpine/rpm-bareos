@@ -19,7 +19,7 @@
 
 Name:           python-%{srcname}
 Version:        18.2.6
-Release:        1
+Release:        1%{?dist}
 Summary:        Backup Archiving REcovery Open Sourced - Python module
 Group:          Productivity/Archiving/Backup
 License:        AGPL-3.0
