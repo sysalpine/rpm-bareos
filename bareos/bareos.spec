@@ -352,7 +352,7 @@ Provides:   %{name}-database-backend
 %package    database-sqlite3
 Summary:    Libs & tools for sqlite3 catalog
 Group:      Productivity/Archiving/Backup
-%if 0%{?fedora} | 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel}
 Requires:   sqlite
 %else
 Requires:   sqlite3
@@ -1484,3 +1484,4 @@ exit 0
 %insserv_cleanup
 
 %changelog
+
