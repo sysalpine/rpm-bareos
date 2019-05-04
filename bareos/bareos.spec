@@ -648,7 +648,7 @@ CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS ;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS ;
 
 # use our own cmake call instead of cmake macro as it is different on different platforms/versions
-%if 0%{?rhel} < 8
+%if 0%{?rhel} && 0%{?rhel} <= 7
 cmake3 .. \
 %else
 cmake  .. \
