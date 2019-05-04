@@ -65,8 +65,6 @@ BuildRequires: httpd-devel
 %define _apache_conf_dir /etc/httpd/conf.d/
 %define daemon_user  apache
 %define daemon_group apache
-Requires:   httpd
-Requires:   mod_php
 
 #define serverroot #(/usr/sbin/apxs2 -q datadir 2>/dev/null || /usr/sbin/apxs2 -q PREFIX)/htdocs/
 
