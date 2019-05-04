@@ -43,7 +43,7 @@ Vendor: 	The Bareos Team
 %define droplet 0
 %define have_git 1
 %define ceph 0
-%define systemd_support 0
+%define systemd_support 1
 %define python_plugins 1
 
 # cmake build directory
@@ -63,10 +63,8 @@ BuildRequires: libtirpc-devel
 %endif
 
 # systemd support
-%if 0%{?rhel} < 7
+%if 0%{?rhel} && 0%{?rhel} < 7
 %define systemd_support 0
-%else
-%define systemd_support 1
 %endif
 
 # GlusterFS Support
