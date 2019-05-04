@@ -814,7 +814,7 @@ rm -f %{buildroot}/%{script_dir}/bareos-glusterfind-wrapper
 rm %{buildroot}%{_mandir}/man1/bareos-tray-monitor.*
 %endif
 
-# remove unused ssuse stuff
+# remove unused suse stuff
 %if 0%{?suse_version}
 rm -fv %{buildroot}%{_initddir}/%{name}-dir
 rm -fv %{buildroot}%{_initddir}/%{name}-fd
@@ -1494,4 +1494,5 @@ exit 0
 %insserv_cleanup
 
 %changelog
-
+* Sa May 04 2019 Paul Trunk <ptrunk@sysalpine.com> 18.2.6-1
+- Initial packages

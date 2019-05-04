@@ -58,14 +58,6 @@ Requires: php-xmlreader
 Requires: php-xmlwriter
 Requires: php-zip
 
-#if 0#{?fedora} || 0#{?rhel} || 0#{?centos}
-BuildRequires: httpd
-# apxs2
-BuildRequires: httpd-devel
-%define _apache_conf_dir /etc/httpd/conf.d/
-%define daemon_user  apache
-%define daemon_group apache
-
 #define serverroot #(/usr/sbin/apxs2 -q datadir 2>/dev/null || /usr/sbin/apxs2 -q PREFIX)/htdocs/
 
 %description
@@ -84,19 +76,19 @@ This package contains the webui (Bareos Web User Interface).
 %setup -n bareos-Release-%{version}/webui
 
 %build
-%if 0%{?centos} < 800 || 0%{?rhel} < 800
+%if 0%{?rhel} < 8
 cmake3 . \
 %else
 cmake  . \
 %endif
-     -DCMAKE_VERBOSE_MAKEFILE=ON \
-     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-     -DCMAKE_INSTALL_LIBDIR:PATH=/usr/lib \
-     -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
-     -DLIB_INSTALL_DIR:PATH=/usr/lib \
-     -DSYSCONF_INSTALL_DIR:PATH=/etc \
-     -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
-     -DBUILD_SHARED_LIBS:BOOL=ON \
+  -DCMAKE_VERBOSE_MAKEFILE=ON \
+  -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+  -DCMAKE_INSTALL_LIBDIR:PATH=/usr/lib \
+  -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
+  -DLIB_INSTALL_DIR:PATH=/usr/lib \
+  -DSYSCONF_INSTALL_DIR:PATH=/etc \
+  -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+  -DBUILD_SHARED_LIBS:BOOL=ON \
   -Dsysconfdir=%{_sysconfdir} \
   -Dconfdir=%{_sysconfdir}/bareos \
   -Dwebuiconfdir=%{_sysconfdir}/bareos-webui \
@@ -153,11 +145,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/README-TRANSLATION.md
 %doc tests/selenium
 %{_datadir}/%{name}/
-#attr(-, #daemon_user, #daemon_group) #{_datadir}/#{name}/data
 %dir /etc/bareos-webui
 %config(noreplace) /etc/bareos-webui/directors.ini
 %config(noreplace) /etc/bareos-webui/configuration.ini
 %config(noreplace) %attr(644,root,root) /etc/bareos/bareos-dir.d/console/admin.conf.example
 %config(noreplace) %attr(644,root,root) /etc/bareos/bareos-dir.d/profile/webui-admin.conf
-%config(noreplace) %{_apache_conf_dir}/bareos-webui.conf
 
+%changelog
+* Sa May 04 2019 Paul Trunk <ptrunk@sysalpine.com> 18.2.6-1
+- Initial packages
