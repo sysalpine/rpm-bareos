@@ -151,5 +151,5 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,root) /etc/bareos/bareos-dir.d/profile/webui-admin.conf
 
 %changelog
-* Sa May  4 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-1
+* Sat May  4 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-1
 - Initial package

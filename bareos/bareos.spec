@@ -1494,5 +1494,5 @@ exit 0
 %insserv_cleanup
 
 %changelog
-* Sa May  4 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-1
+* Sat May  4 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-1
 - Initial packages
