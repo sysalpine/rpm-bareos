@@ -62,17 +62,26 @@ BuildRequires: rpcgen
 BuildRequires: libtirpc-devel
 %endif
 
-%if 0%{?fedora} >= 20
-%if 0%{?fedora} < 30
-%define glusterfs 1
-%endif
+# systemd support
+%if 0%{?rhel} < 7
+%define systemd_support 0
+%else
 %define systemd_support 1
 %endif
 
-%if 0%{?rhel} >= 7
+%if 0%{?fedora} < 30
+%define glusterfs 1
+%endif
+
+# GlusterFS Support
+%if 0%{?rhel} >= 7 || 0%{?fedora} < 30
 %define glusterfs 1
 %define droplet 1
-%define systemd_support 1
+%endif
+
+# S3 Support via libdroplet
+%if 0%{?rhel} == 7
+%define droplet 1
 %endif
 
 # use Developer Toolset 7 compiler as standard is too old
@@ -83,6 +92,10 @@ BuildRequires: devtoolset-7-gcc-c++
 
 %if 0%{?systemd_support}
 BuildRequires: systemd
+%if 0%{?fedora} || 0%{?rhel}
+%else
+BuildRequires: systemd-rpm-macros
+%endif
 %{?systemd_requires}
 %endif
 
@@ -134,7 +147,10 @@ BuildRequires: libfastlz-devel
 %endif
 BuildRequires: logrotate
 %if 0%{?build_sqlite3}
+%if 0%{?fedora} || 0%{?rhel}
 BuildRequires: sqlite-devel
+%else
+BuildRequires: sqlite3-devel
 %endif
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
@@ -155,14 +171,26 @@ BuildRequires: qt5-qtbase-devel
 BuildRequires: python-devel >= 2.6
 %endif
 
+%if 0%{?fedora} || 0%{?rhel}
+BuildRequires: redhat-lsb
 BuildRequires: libtermcap-devel
 BuildRequires: passwd
-
+BuildRequires: jansson-devel
 %if %{use_libwrap}
 BuildRequires: tcp_wrappers
+BuildRequires: tcp_wrappers-devel
 %endif
-
-BuildRequires: redhat-lsb
+%else
+# Suse
+BuildRequires: distribution-release
+BuildRequires: pwdutils
+BuildRequires: tcpd-devel
+BuildRequires: termcap
+BuildRequires: update-desktop-files
+BuildRequires: fdupes
+BuildRequires: libjansson-devel
+BuildRequires: lsb-release
+%endif
 
 # older versions require additional release packages
 %if 0%{?rhel} && 0%{?rhel} <= 6
@@ -171,11 +199,6 @@ BuildRequires: redhat-release
 
 %if 0%{?fedora}
 BuildRequires: fedora-release
-%endif
-
-BuildRequires: jansson-devel
-%if %{use_libwrap}
-BuildRequires: tcp_wrappers-devel
 %endif
 
 
@@ -216,7 +239,12 @@ Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Requires:   %{name}-database-common = %{version}
 Requires:   %{name}-database-tools
+%if 0%{?fedora} || 0%{?rhel}
 Requires(pre): shadow-utils
+%else
+#suse
+Requires(pre): pwdutils
+%endif
 Provides:   %{name}-dir
 
 %package    storage
@@ -224,7 +252,12 @@ Summary:    Bareos Storage daemon
 Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Provides:   %{name}-sd
+%if 0%{?fedora} || 0%{?rhel}
 Requires(pre): shadow-utils
+%else
+#suse
+Requires(pre): pwdutils
+%endif
 # Recommends would be enough, however only supported by Fedora >= 24.
 Requires: bareos-tools
 
@@ -259,6 +292,9 @@ Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common  = %{version}
 Requires:   %{name}-storage = %{version}
 Requires:   mtx
+%if 0%{?fedora} || 0%{?rhel}
+Requires:   mt-st
+%endif
 
 %package    storage-fifo
 Summary:    FIFO support for the Bareos Storage backend
@@ -271,14 +307,24 @@ Summary:    Bareos File daemon (backup and restore client)
 Group:      Productivity/Archiving/Backup
 Requires:   %{name}-common = %{version}
 Provides:   %{name}-fd
+%if 0%{?fedora} || 0%{?rhel}
 Requires(pre): shadow-utils
+%else
+#suse
+Requires(pre): pwdutils
+%endif
 
 %package    common
 Summary:    Common files, required by multiple Bareos packages
 Group:      Productivity/Archiving/Backup
-Requires:   openssl
-Requires(pre): shadow-utils
 Provides:   %{name}-libs
+Requires:   openssl
+%if 0%{?fedora} || 0%{?rhel}
+Requires(pre): shadow-utils
+%else
+#suse
+Requires(pre): pwdutils
+%endif
 
 %package    database-common
 Summary:    Generic abstraction libs and files to connect to a database
@@ -306,8 +352,10 @@ Provides:   %{name}-database-backend
 %package    database-sqlite3
 Summary:    Libs & tools for sqlite3 catalog
 Group:      Productivity/Archiving/Backup
-%if 0%{?fedora}
+%if 0%{?fedora} | 0%{?rhel}
 Requires:   sqlite
+%else
+Requires:   sqlite3
 %endif
 Requires:   %{name}-database-common = %{version}
 Provides:   %{name}-catalog-sqlite3
@@ -345,10 +393,18 @@ Requires:   libacl-devel
 Requires:   postgresql-devel
 Requires:   libcap-devel
 %if 0%{?build_sqlite3}
+%if 0%{?fedora} | 0%{?rhel}
 Requires:   sqlite-devel
+%else
+Requires:   sqlite3-devel
 %endif
+%endif
+%if 0%{?fedora} | 0%{?rhel}
 Requires:   openssl-devel
-%if 0%{?rhel} >= 6 || 0%{?fedora}
+%else
+Requires:   libopenssl-devel
+%endif
+%if 0%{?rhel} || 0%{?fedora}
 %if %{use_libwrap}
 Requires:   tcp_wrappers-devel
 %endif
