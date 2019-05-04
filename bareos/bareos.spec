@@ -393,13 +393,13 @@ Requires:   libacl-devel
 Requires:   postgresql-devel
 Requires:   libcap-devel
 %if 0%{?build_sqlite3}
-%if 0%{?fedora} | 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel}
 Requires:   sqlite-devel
 %else
 Requires:   sqlite3-devel
 %endif
 %endif
-%if 0%{?fedora} | 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel}
 Requires:   openssl-devel
 %else
 Requires:   libopenssl-devel
