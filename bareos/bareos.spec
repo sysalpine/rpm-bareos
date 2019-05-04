@@ -88,8 +88,7 @@ BuildRequires: devtoolset-7-gcc-c++
 
 %if 0%{?systemd_support}
 BuildRequires: systemd
-%if 0%{?fedora} || 0%{?rhel}
-%else
+%if 0%{?suse}
 BuildRequires: systemd-rpm-macros
 %endif
 %{?systemd_requires}
@@ -97,10 +96,10 @@ BuildRequires: systemd-rpm-macros
 
 %if 0%{?glusterfs}
 %if 0%{?fedora} || 0%{?rhel}
-BuildRequires: glusterfs-devel 
+BuildRequires: glusterfs-devel
 BuildRequires: glusterfs-api-devel
 %else
-BuildRequires: glusterfs-devel 
+BuildRequires: glusterfs-devel
 %endif
 %endif
 
@@ -813,6 +812,19 @@ rm -f %{buildroot}/%{script_dir}/bareos-glusterfind-wrapper
 # remove man page if qt tray monitor is not built
 %if !0%{?build_qt_monitor}
 rm %{buildroot}%{_mandir}/man1/bareos-tray-monitor.*
+%endif
+
+# remove unused ssuse stuff
+%if 0%{?suse_version}
+rm -fv %{buildroot}%{_initddir}/%{name}-dir
+rm -fv %{buildroot}%{_initddir}/%{name}-fd
+rm -fv %{buildroot}%{_initddir}/%{name}-sd
+rm -fv %{buildroot}%{_sbindir}/rc%{name}-dir
+rm -fv %{buildroot}%{_sbindir}/rc%{name}-fd
+rm -fv %{buildroot}%{_sbindir}/rc%{name}-sd
+rm -fv %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-dir
+rm -fv %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-fd
+rm -fv %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-sd
 %endif
 
 # install systemd service files
