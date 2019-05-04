@@ -69,18 +69,17 @@ BuildRequires: libtirpc-devel
 %define systemd_support 1
 %endif
 
-%if 0%{?fedora} < 30
-%define glusterfs 1
-%endif
-
 # GlusterFS Support
-%if 0%{?rhel} >= 7 || 0%{?fedora} < 30
+%if 0%{?fedora} >= 30
+%define glusterfs 0
+%else
 %define glusterfs 1
 %endif
 
 # S3 Support via libdroplet
-%if 0%{?rhel} <= 7
+%if 0%{?rhel} == 7
 %define droplet 1
+BuildRequires: libdroplet-devel
 %endif
 
 # use Developer Toolset 7 compiler as standard is too old
@@ -96,10 +95,6 @@ BuildRequires: systemd
 BuildRequires: systemd-rpm-macros
 %endif
 %{?systemd_requires}
-%endif
-
-%if 0%{?droplet}
-BuildRequires: libdroplet-devel
 %endif
 
 %if 0%{?glusterfs}
