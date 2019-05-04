@@ -76,11 +76,10 @@ BuildRequires: libtirpc-devel
 # GlusterFS Support
 %if 0%{?rhel} >= 7 || 0%{?fedora} < 30
 %define glusterfs 1
-%define droplet 1
 %endif
 
 # S3 Support via libdroplet
-%if 0%{?rhel} == 7
+%if 0%{?rhel} <= 7
 %define droplet 1
 %endif
 
@@ -104,7 +103,12 @@ BuildRequires: libdroplet-devel
 %endif
 
 %if 0%{?glusterfs}
-BuildRequires: glusterfs-devel glusterfs-api-devel
+%if 0%{?fedora} || 0%{?rhel}
+BuildRequires: glusterfs-devel 
+BuildRequires: glusterfs-api-devel
+%else
+BuildRequires: glusterfs-devel 
+%endif
 %endif
 
 %if 0%{?ceph}
