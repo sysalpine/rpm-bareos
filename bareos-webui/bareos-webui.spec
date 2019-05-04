@@ -75,7 +75,7 @@ This package contains the webui (Bareos Web User Interface).
 %setup -n bareos-Release-%{version}/webui
 
 %build
-%if 0%{?rhel} < 8
+%if 0%{?rhel} && 0%{?rhel} < 8
 cmake3 . \
 %else
 cmake  . \
@@ -127,6 +127,8 @@ if [ -e %1.rpmupdate.%{version}.keep ]; then \
 fi; \
 %nil
 
+rm -fv %{buildroot}%{_sysconfdir}/httpd/conf.d/bareos-webui.conf
+
 %post
 %post_backup_file /etc/bareos/bareos-dir.d/webui-consoles.conf
 %post_backup_file /etc/bareos/bareos-dir.d/webui-profiles.conf
@@ -136,6 +138,7 @@ fi; \
 %posttrans_restore_file /etc/bareos/bareos-dir.d/webui-profiles.conf
 
 %clean
+
 rm -rf $RPM_BUILD_ROOT
 
 %files
