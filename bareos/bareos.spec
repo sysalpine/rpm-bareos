@@ -152,6 +152,7 @@ BuildRequires: sqlite-devel
 %else
 BuildRequires: sqlite3-devel
 %endif
+%endif
 BuildRequires: mysql-devel
 BuildRequires: postgresql-devel
 BuildRequires: openssl
