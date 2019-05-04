@@ -1319,7 +1319,7 @@ fi; \
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
 %{script_dir}/bareos-config initialize_database_driver
-%add_service_start bareos-dir
+#%add_service_start bareos-dir
 
 %posttrans director
 %posttrans_restore_file /etc/%{name}/bareos-dir.conf
@@ -1331,7 +1331,7 @@ fi; \
 %{script_dir}/bareos-config setup_sd_user
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
-%add_service_start bareos-sd
+#%add_service_start bareos-sd
 
 %posttrans storage
 %posttrans_restore_file /etc/%{name}/bareos-sd.conf
@@ -1364,7 +1364,7 @@ fi; \
 %post_backup_file /etc/%{name}/bareos-fd.conf
 %{script_dir}/bareos-config initialize_local_hostname
 %{script_dir}/bareos-config initialize_passwords
-%add_service_start bareos-fd
+#%add_service_start bareos-fd
 
 %posttrans filedaemon
 %posttrans_restore_file /etc/%{name}/bareos-fd.conf
