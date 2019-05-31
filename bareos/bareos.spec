@@ -4,15 +4,16 @@
 #               2013-2018 Bareos GmbH & Co KG
 #
 
-Name: 		bareos
-Version: 	18.2.6
-Release: 	1%{?dist}
-Group: 		Productivity/Archiving/Backup
-License: 	AGPL-3.0
-BuildRoot: 	%{_tmppath}/%{name}-root
-URL: 		http://www.bareos.org/
-Vendor: 	The Bareos Team
-#Packager: 	{_packager}
+Name:       bareos
+Version:    18.2.6
+Release:    1%{?dist}
+Group:      Productivity/Archiving/Backup
+License:    AGPL-3.0
+BuildRoot:  %{_tmppath}/%{name}-root
+URL:        http://www.bareos.org/
+Vendor:     The Bareos Team
+#Packager:   {_packager}
+Source0: %{name}-Release-%{version}.tar.gz
 
 %define library_dir    %{_libdir}/%{name}
 %define backend_dir    %{_libdir}/%{name}/backends
@@ -49,22 +50,10 @@ Vendor: 	The Bareos Team
 # cmake build directory
 %define CMAKE_BUILDDIR       cmake-build
 
-# fedora 28 deprecated libwrap
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-%define use_libwrap 0
-%else
-%define use_libwrap 1
-%endif
-
 # fedora 28: rpc was removed from libc
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 BuildRequires: rpcgen
 BuildRequires: libtirpc-devel
-%endif
-
-# systemd support
-%if 0%{?rhel} && 0%{?rhel} < 7
-%define systemd_support 0
 %endif
 
 # GlusterFS Support
@@ -80,19 +69,12 @@ BuildRequires: libtirpc-devel
 BuildRequires: libdroplet-devel
 %endif
 
-# use Developer Toolset 7 compiler as standard is too old
-%if 0%{?rhel} == 6
-BuildRequires: devtoolset-7-gcc
-BuildRequires: devtoolset-7-gcc-c++
-%endif
-
-%if 0%{?systemd_support}
+# Systemd
 BuildRequires: systemd
 %if 0%{?suse}
 BuildRequires: systemd-rpm-macros
 %endif
 %{?systemd_requires}
-%endif
 
 %if 0%{?glusterfs}
 %if 0%{?fedora} || 0%{?rhel}
@@ -110,8 +92,6 @@ BuildRequires: ceph-devel
 %if 0%{?have_git}
 BuildRequires: git-core
 %endif
-
-Source0: %{name}-Release-%{version}.tar.gz
 
 BuildRequires: pam-devel
 
@@ -173,10 +153,6 @@ BuildRequires: redhat-lsb
 BuildRequires: libtermcap-devel
 BuildRequires: passwd
 BuildRequires: jansson-devel
-%if %{use_libwrap}
-BuildRequires: tcp_wrappers
-BuildRequires: tcp_wrappers-devel
-%endif
 %else
 # Suse
 BuildRequires: distribution-release
@@ -187,11 +163,6 @@ BuildRequires: update-desktop-files
 BuildRequires: fdupes
 BuildRequires: libjansson-devel
 BuildRequires: lsb-release
-%endif
-
-# older versions require additional release packages
-%if 0%{?rhel} && 0%{?rhel} <= 6
-BuildRequires: redhat-release
 %endif
 
 %if 0%{?fedora}
@@ -402,26 +373,9 @@ Requires:   openssl-devel
 Requires:   libopenssl-devel
 %endif
 %if 0%{?rhel} || 0%{?fedora}
-%if %{use_libwrap}
-Requires:   tcp_wrappers-devel
-%endif
-%else
-%if 0%{?rhel}
-%if %{use_libwrap}
-Requires:   tcp_wrappers
-%endif
-%else
-Requires:   tcpd-devel
-%endif
-%endif
-%if 0%{?rhel} >= 7 || 0%{?fedora} >= 19
 Requires:   mariadb-devel
 %else
-%if 0%{?rhel} || 0%{?fedora}
-Requires:   mysql-devel
-%else
-Requires:   libmysqlclient-devel
-%endif
+Requires:   libmariadb-devel
 %endif
 
 %package    regress-config
@@ -636,11 +590,6 @@ export MTX=/usr/sbin/mtx
 mkdir %{CMAKE_BUILDDIR}
 pushd %{CMAKE_BUILDDIR}
 
-# use Developer Toolset 7 compiler as standard is too old
-%if 0%{?rhel} == 6
-export PATH=/opt/rh/devtoolset-7/root/usr/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
-%endif
-
 CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS ;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS ;
 
@@ -705,9 +654,6 @@ cmake  .. \
 %if 0%{?build_sqlite3}
   -Dsqlite3=yes \
 %endif
-%if %{use_libwrap}
-  -Dtcp-wrappers=yes \
-%endif
   -Ddir-user=%{director_daemon_user} \
   -Ddir-group=%{daemon_group} \
   -Dsd-user=%{storage_daemon_user} \
@@ -723,9 +669,7 @@ cmake  .. \
   -Dopenssl=yes \
   -Dbasename="XXX_REPLACE_WITH_LOCAL_HOSTNAME_XXX" \
   -Dhostname="XXX_REPLACE_WITH_LOCAL_HOSTNAME_XXX" \
-%if 0%{?systemd_support}
   -Dsystemd=yes \
-%endif
   -Dincludes=yes \
   -DVERSION_STRING=%version
 
@@ -777,14 +721,12 @@ for F in  \
     %{script_dir}/mtx-changer \
     %{_sysconfdir}/%{name}/mtx-changer.conf \
 %endif
-%if 0%{?systemd_support}
     %{_sysconfdir}/rc.d/init.d/bareos-dir \
     %{_sysconfdir}/rc.d/init.d/bareos-sd \
     %{_sysconfdir}/rc.d/init.d/bareos-fd \
     %{_sysconfdir}/init.d/bareos-dir \
     %{_sysconfdir}/init.d/bareos-sd \
     %{_sysconfdir}/init.d/bareos-fd \
-%endif
     %{script_dir}/bareos_config \
     %{script_dir}/btraceback.dbx \
     %{script_dir}/btraceback.mdb \
@@ -828,12 +770,10 @@ rm -fv %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/bareos-sd
 %endif
 
 # install systemd service files
-%if 0%{?systemd_support}
 install -d -m 755 %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-dir.service %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-fd.service %{buildroot}%{_unitdir}
 install -m 644 platforms/systemd/bareos-sd.service %{buildroot}%{_unitdir}
-%endif
 
 # Create the Readme files for the meta packages
 [ -d %{buildroot}%{_docdir}/%{name}/ ]  || install -d -m 755 %{buildroot}%{_docdir}/%{name}
@@ -863,12 +803,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %files director
 # dir package (bareos-dir)
 %defattr(-, root, root)
-%if !0%{?systemd_support}
-%{_sysconfdir}/init.d/bareos-dir
-%endif
-%if !0%{?systemd_support}
-%{_sysconfdir}/rc.d/init.d/bareos-dir
-%endif
 %attr(0640, %{director_daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/bareos-dir.d/catalog/MyCatalog.conf
 %attr(0640, %{director_daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/bareos-dir.d/client/bareos-fd.conf
 %attr(0640, %{director_daemon_user}, %{daemon_group}) %config(noreplace) %{_sysconfdir}/%{name}/bareos-dir.d/console/bareos-mon.conf
@@ -906,9 +840,7 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %dir %{_docdir}/%{name}
 %{_mandir}/man8/bareos-dir.8.gz
 %{_mandir}/man8/bareos.8.gz
-%if 0%{?systemd_support}
 %{_unitdir}/bareos-dir.service
-%endif
 
 # query.sql is not a config file,
 # but can be personalized by end user.
@@ -938,9 +870,7 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %{script_dir}/disk-changer
 %{plugin_dir}/autoxflate-sd.so
 %{_mandir}/man8/bareos-sd.8.gz
-%if 0%{?systemd_support}
 %{_unitdir}/bareos-sd.service
-%endif
 %attr(0775, %{storage_daemon_user}, %{daemon_group}) %dir /var/lib/%{name}/storage
 
 %files storage-tape
@@ -1015,9 +945,7 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %{plugin_dir}/bpipe-fd.so
 %{_mandir}/man8/bareos-fd.8.gz
 # tray monitor
-%if 0%{?systemd_support}
 %{_unitdir}/bareos-fd.service
-%endif
 
 %files common
 # common shared libraries (without db)
@@ -1243,8 +1171,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 /bin/true \
 %nil
 
-%if 0%{?systemd_support}
-
 %define add_service_start() \
 /bin/systemctl daemon-reload >/dev/null 2>&1 || true \
 /bin/systemctl enable %1.service >/dev/null 2>&1 || true \
@@ -1264,28 +1190,6 @@ if test "$FIRST_ARG" -ge 1 ; then \
 fi \
 %nil
 
-%else
-
-%define add_service_start() \
-/sbin/chkconfig --add %1 \
-%nil
-
-%define stop_on_removal() \
-test -n "$FIRST_ARG" || FIRST_ARG=$1 \
-if test "$FIRST_ARG" = "0" ; then \
-  /sbin/service %1 stop >/dev/null 2>&1 || \
-  /sbin/chkconfig --del %1 || true \
-fi \
-%nil
-
-%define restart_on_update() \
-test -n "$FIRST_ARG" || FIRST_ARG=$1 \
-if test "$FIRST_ARG" -ge 1 ; then \
-  /sbin/service %1 condrestart >/dev/null 2>&1 || true \
-fi \
-%nil
-
-%endif
 
 %define create_group() \
 getent group %1 > /dev/null || groupadd -r %1 \
