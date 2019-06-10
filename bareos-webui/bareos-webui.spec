@@ -1,7 +1,7 @@
 
 Name:          bareos-webui
 Version:       18.2.6
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Bareos Web User Interface
 
 Group:         Productivity/Archiving/Backup
@@ -40,7 +40,9 @@ Requires: php-hash
 Requires: php-iconv
 Requires: php-intl
 Requires: php-json
+%if 0%{?rhel} || 0%{?fedora}
 Requires: php-libxml
+%endif
 Requires: php-mbstring
 #Requires: php-mysql
 Requires: php-openssl
@@ -154,5 +156,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,root) /etc/bareos/bareos-dir.d/profile/webui-admin.conf
 
 %changelog
+* Mon Jun 10 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-2
+- Skip php-libxml on Suse
+
 * Sat May  4 2019 Paul Trunk <ptrunk@sysalpine.com> - 18.2.6-1
 - Initial package
