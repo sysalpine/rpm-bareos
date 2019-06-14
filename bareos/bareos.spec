@@ -45,7 +45,6 @@ Source0: %{name}-Release-%{version}.tar.gz
 %define have_git 1
 %define ceph 0
 %define systemd_support 1
-%define python_plugins 1
 
 # cmake build directory
 %define CMAKE_BUILDDIR       cmake-build
@@ -143,10 +142,7 @@ BuildRequires: qt5-qtbase-devel
 %endif
 %endif
 
-
-%if 0%{?python_plugins}
 BuildRequires: python-devel >= 2.6
-%endif
 
 %if 0%{?fedora} || 0%{?rhel}
 BuildRequires: redhat-lsb
@@ -383,7 +379,6 @@ Summary:    Required files for bareos-regress
 Group:      Development/Languages/C and C++
 Requires:   %{name}-common = %{version}
 
-%if 0%{?python_plugins}
 %package    director-python-plugin
 Summary:    Python plugin for Bareos Director daemon
 Group:      Productivity/Archiving/Backup
@@ -426,7 +421,6 @@ This package contains the LDAP python plugin for the file daemon
 
 This package contains the python plugin for the storage daemon
 
-%endif
 
 %if 0%{?glusterfs}
 %package    filedaemon-glusterfs-plugin
@@ -599,14 +593,14 @@ cmake3 .. \
 %else
 cmake  .. \
 %endif
-      -DCMAKE_VERBOSE_MAKEFILE=ON \
-      -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-      -DCMAKE_INSTALL_LIBDIR:PATH=/usr/lib \
-      -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
-      -DLIB_INSTALL_DIR:PATH=/usr/lib \
-      -DSYSCONF_INSTALL_DIR:PATH=/etc \
-      -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
-      -DBUILD_SHARED_LIBS:BOOL=ON \
+  -DCMAKE_VERBOSE_MAKEFILE=ON \
+  -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+  -DCMAKE_INSTALL_LIBDIR:PATH=/usr/lib \
+  -DINCLUDE_INSTALL_DIR:PATH=/usr/include \
+  -DLIB_INSTALL_DIR:PATH=/usr/lib \
+  -DSYSCONF_INSTALL_DIR:PATH=/etc \
+  -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+  -DBUILD_SHARED_LIBS:BOOL=ON \
   -Dprefix=%{_prefix}\
   -Dlibdir=%{library_dir} \
   -Dsbindir=%{_sbindir} \
@@ -625,9 +619,7 @@ cmake  .. \
   -Dbsrdir=%{bsr_dir} \
   -Dlogdir=/var/log/bareos \
   -Dsubsysdir=%{_subsysdir} \
-%if 0%{?python_plugins}
   -Dpython=yes \
-%endif
   -Dsmartalloc=yes \
   -Ddisable-conio=yes \
   -Dreadline=yes \
@@ -740,12 +732,6 @@ done
 # for i in #{buildroot}/#{_libdir}/libbareos*; do printf "$i: "; readelf -a $i | grep SONAME; done
 find %{buildroot}/%{library_dir} -type l -name "libbareos*.so" -maxdepth 1 -exec rm {} \;
 ls -la %{buildroot}/%{library_dir}
-
-%if ! 0%{?python_plugins}
-rm -f %{buildroot}/%{plugin_dir}/python-*.so
-rm -f %{buildroot}/%{plugin_dir}/*.py*
-rm -f %{buildroot}/%{_sysconfdir}/%{name}/bareos-dir.d/plugin-python-ldap.conf
-%endif
 
 %if ! 0%{?glusterfs}
 rm -f %{buildroot}/%{script_dir}/bareos-glusterfind-wrapper
@@ -1092,7 +1078,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %defattr(-, root, root)
 /usr/include/%{name}
 
-%if 0%{?python_plugins}
 %files filedaemon-python-plugin
 %defattr(-, root, root)
 %{plugin_dir}/python-fd.so
@@ -1130,7 +1115,6 @@ echo "This is a meta package to install a full bareos system" > %{buildroot}%{_d
 %{plugin_dir}/BareosSdWrapper.py*
 %{plugin_dir}/bareos-sd-class-plugin.py*
 
-%endif # python_plugins
 
 %if 0%{?glusterfs}
 %files filedaemon-glusterfs-plugin
@@ -1297,13 +1281,11 @@ fi; \
 %endif
 
 
-%if 0%{?python_plugins}
 %post filedaemon-ldap-python-plugin
 %post_backup_file /etc/%{name}/bareos-dir.d/plugin-python-ldap.conf
 
 %posttrans filedaemon-ldap-python-plugin
 %posttrans_restore_file /etc/%{name}/bareos-dir.d/plugin-python-ldap.conf
-%endif
 
 
 %post bconsole
